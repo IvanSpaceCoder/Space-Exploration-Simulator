@@ -1,28 +1,54 @@
-This project is an **interactive planet HUD** in Roblox, featuring realistic information about planets, and a functional spaceship
+# Space Exploration Simulator
 
---PLANET HUD--
-When approaching a planet and pressing 'E' a window displays:
-Planet name
-Gravity (m/s²)
-Planet type ( rocky,gaseous, etc..)
-Planet temperature
-Sound effect when opening and closing info
+Interactive space simulator in Roblox with realistic orbital physics.
 
---SPACESHIP INTERACTION-- 
+## 🚀 Features
 
-When you sit down, the spaceship starts with an alarm displaying for 5 seconds with smoke particles in it and then, it starts flying with fire particles with a rocket loop and gradually increases speed in steps of 10,
-also. It prepare it's boosters to fall down and start to accelerate a lot
+### Planet Information System
+- Press 'E' near planets to view data
+- Displays: Name, Gravity, Type, Temperature, **Escape Velocity**
+- **Escape velocity calculated using real physics**: √(2 × G × Mass / Radius)
+- Interactive sound effects
 
---APPLIED PHYSICS--
-Newton's First law: the spaceship continues moving unless an external force acts on it
-Newton's Second law: the boosters of the spaceship are moving the main basepart of the spaceship, the capsule.
-Space Friction: this is practically ignored due to being extremely minimal.
+### Realistic Spaceship
+- **Gradual acceleration** (realistic physics, not instant jumps)
+- **Fuel consumption system** with real-time display
+- Booster separation like real rockets
+- Particle effects (smoke + fire)
+- Sound design
 
-## How to use
-1.Open the project in Roblox Studio.
-2. Play the game.
-3. Approach a planet and press 'E' to open the HUD
-4. Sit on the spaceship and observe how it reacts
+## 📐 Physics Implemented
 
-**Created by Ivan**
-**Purpose: this project demonstrates programming and applied physics skills in Roblox**
+- **Escape Velocity Formula**: √(2 × G × Mass / Radius)
+- Newton's First Law: Inertia in space
+- Newton's Second Law: F = ma
+- Minimal space friction (realistic)
+- Example: Mars escape velocity = ~5,016 m/s (calculated from real mass/radius)
+
+## 📁 Project Structure
+
+- `PlanetScanner.txt` - Planet information system with escape velocity calculations
+- `RocketScript.txt` - Spaceship physics and fuel system
+- `Demo.mkv` - Video demonstration
+- Screenshots showing the system in action
+
+## 🎮 How to Use
+
+1. Open in Roblox Studio
+2. Play the game
+3. Press 'E' near planets for detailed information
+4. Sit in spaceship and experience realistic launch sequence
+
+## 👨‍🚀 About
+
+Created by **Ivan** (14 years old)  
+**Goal**: Learning programming and space physics to become an astronaut
+
+Started coding 2 weeks ago. This project demonstrates applied physics and programming skills in a game engine.
+
+## 🛠️ Tech Stack
+
+- Lua
+- Roblox Studio  
+- Real orbital mechanics
+- Physics formulas from NASA references
