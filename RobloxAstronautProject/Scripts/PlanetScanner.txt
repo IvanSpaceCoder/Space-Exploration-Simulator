@@ -1,0 +1,78 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+-- hud and sounds
+local gui = player:WaitForChild("PlayerGui"):WaitForChild("PlanetHUD")
+local main = gui:WaitForChild("Main")
+local closeButton = main:WaitForChild("CloseButton")
+local nameLabel = main:WaitForChild("PlanetName")
+local gravityLabel = main:WaitForChild("Gravity")
+local typeLabel = main:WaitForChild("Type")
+local tempLabel = main:WaitForChild("Temperature")
+
+local openSound = Instance.new("Sound")
+openSound.SoundId = "rbxassetid://108374626393635"
+openSound.Volume = 1
+openSound.Parent = player.PlayerGui
+
+local closeSound = Instance.new("Sound")
+closeSound.SoundId = "rbxassetid://80019559619579"
+closeSound.Volume = 0.5
+closeSound.Parent = player.PlayerGui
+
+main.Visible = false
+
+closeButton.MouseButton1Click:Connect(function()
+	main.Visible = false
+	closeSound:Play()
+end)
+
+local function setupCharacter(char)
+	local hrp = char:WaitForChild("HumanoidRootPart")
+	local mouse = player:GetMouse()
+
+	UIS.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then return end
+		if input.KeyCode == Enum.KeyCode.E then
+			local target = mouse.Target
+			if target then
+				local planet = target
+				if planet.Parent ~= workspace.Planets then
+					planet = planet.Parent
+				end
+
+				if planet and planet.Parent == workspace.Planets then
+					local name = planet:FindFirstChild("PlanetName")
+					local gravity = planet:FindFirstChild("Gravity")
+					local temp = planet:FindFirstChild("Temperature")
+					local ptype = planet:FindFirstChild("Type")
+
+					if name and gravity and temp and ptype then
+						nameLabel.Text = "Planet: " .. name.Value
+						gravityLabel.Text = "Gravity: " .. gravity.Value .. " m/s²"
+						tempLabel.Text = "Temperature: " .. temp.Value .. "°C"
+						local mass = planet:FindFirstChild("Mass")
+						local radius = planet:FindFirstChild("Radius")
+						if mass and radius then 
+							local G = 6.674e-11
+							local escapeVel = math.sqrt((2 * G * mass.Value) / radius.Value)
+							main.EscapeVel.Text = "Escape Velocity: " .. math.floor(escapeVel) .. " m/s"
+						end
+						typeLabel.Text = "Type: " .. ptype.Value
+						main.Visible = true
+						openSound:Play()
+					end
+				end
+			end
+		end
+	end)
+end
+
+if player.Character then
+	setupCharacter(player.Character)
+end
+
+player.CharacterAdded:Connect(function(char)
+	setupCharacter(char)
+end)

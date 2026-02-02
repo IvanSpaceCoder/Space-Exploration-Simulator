@@ -1,0 +1,212 @@
+
+local Players = game:GetService("Players")
+local seat = script.Parent
+local rocket = seat:FindFirstAncestor("Rocket")
+local primary = rocket.PrimaryPart
+local lv = primary:FindFirstChild("LinearVelocity")
+
+
+local launched = false
+local fuel = 1000
+local fuelConsumption = 2
+local engineOn = false
+local gravityActive = false
+
+
+local booster1 = rocket:FindFirstChild("Booster1")
+local booster2 = rocket:FindFirstChild("Booster2")
+local booster3 = rocket:FindFirstChild("Booster3")
+local booster4 = rocket:FindFirstChild("Booster4")
+
+
+local booster1Fire = booster1 and booster1:FindFirstChild("ParticleEmitter")
+local booster2Fire = booster2 and booster2:FindFirstChild("ParticleEmitter")
+
+if booster1Fire then
+	booster1Fire.Enabled = false
+	booster1Fire.Texture = "rbxassetid://341300089"
+end
+if booster2Fire then
+	booster2Fire.Enabled = false
+	booster2Fire.Texture = "rbxassetid://341300089"
+end
+
+-- principal particles
+local smoke = Instance.new("ParticleEmitter")
+smoke.Texture = "rbxassetid://624634365"
+smoke.Lifetime = NumberRange.new(2,4)
+smoke.Rate = 40
+smoke.Speed = NumberRange.new(1,3)
+smoke.Drag = 5
+smoke.VelocityInheritance = 0.2
+smoke.Size = NumberSequence.new{
+	NumberSequenceKeypoint.new(0,0.8),
+	NumberSequenceKeypoint.new(1,4)
+}
+smoke.Transparency = NumberSequence.new{
+	NumberSequenceKeypoint.new(0,0.1),
+	NumberSequenceKeypoint.new(0.7,0.4),
+	NumberSequenceKeypoint.new(1,1)
+}
+smoke.Enabled = false
+smoke.Parent = primary
+
+local fire = Instance.new("ParticleEmitter")
+fire.Texture = "rbxassetid://1038411245"
+fire.Lifetime = NumberRange.new(0.2,0.5)
+fire.Rate = 300
+fire.Speed = NumberRange.new(8,12)
+fire.Drag = 1
+fire.SpreadAngle = Vector2.new(10,10)
+fire.Size = NumberSequence.new{
+	NumberSequenceKeypoint.new(0,1),
+	NumberSequenceKeypoint.new(1,0.5)
+}
+fire.LightEmission = 0.7
+fire.Transparency = NumberSequence.new{
+	NumberSequenceKeypoint.new(0,0),
+	NumberSequenceKeypoint.new(1,1)
+}
+fire.Enabled = false
+fire.Parent = primary
+
+-- sounds
+
+local engineSound = Instance.new("Sound", primary)
+engineSound.SoundId = "rbxassetid://9119414091"
+engineSound.Looped = true
+
+local spaceShip = Instance.new("Sound", primary)
+spaceShip.SoundId = "rbxassetid://611141322"
+spaceShip.Looped = true
+
+local previousHumanoid = nil
+
+
+local function clearGravity(char)
+	if not char then return end
+	local root = char:FindFirstChild("HumanoidRootPart")
+	if root then
+		for _, v in pairs(root:GetChildren()) do
+			if v:IsA("AlignOrientation") or v:IsA("VectorForce") or v:IsA("Attachment") then
+				v:Destroy()
+			end
+		end
+	end
+end
+
+
+seat:GetPropertyChangedSignal("Occupant"):Connect(function()
+	local humanoid = seat.Occupant
+
+	
+	if previousHumanoid and humanoid == nil then
+		clearGravity(previousHumanoid.Parent)
+		gravityActive = false
+	end
+
+	if not humanoid then
+		previousHumanoid = nil
+		return
+	end
+
+	previousHumanoid = humanoid
+	gravityActive = true
+	previousHumanoid = humanoid
+	gravityActive = true
+
+	local player = Players:GetPlayerFromCharacter(humanoid.Parent)
+	local character = player.Character
+	local root = character:WaitForChild("HumanoidRootPart")
+	local gui = player:WaitForChild("PlayerGui"):WaitForChild("RocketHUD")
+	local main = gui:WaitForChild("Main")
+	local fuelLabel = main:WaitForChild("FuelLabel")
+	local closeButton = main:WaitForChild("closeButton")
+
+	main.Visible = true  -- The GUI shows up
+
+	closeButton.MouseButton1Click:Connect(function()
+		main.Visible = false
+	end)
+
+
+	clearGravity(character)
+
+	local attach0 = Instance.new("Attachment", root)
+	local attach1 = Instance.new("Attachment", primary)
+
+	local align = Instance.new("AlignOrientation")
+	align.Attachment0 = attach0
+	align.Attachment1 = attach1
+	align.RigidityEnabled = true
+	align.MaxTorque = math.huge
+	align.Responsiveness = 200
+	align.Parent = root
+
+	local force = Instance.new("VectorForce")
+	force.Attachment0 = attach0
+	force.RelativeTo = Enum.ActuatorRelativeTo.World
+	force.Force = Vector3.new(0, -root.AssemblyMass * workspace.Gravity * 1.5, 0)
+	force.Parent = root
+
+	if launched then return end
+	launched = true
+
+	-- BOOSTERS
+	if booster1Fire then booster1Fire.Enabled = true end
+	if booster2Fire then booster2Fire.Enabled = true end
+
+	task.delay(25, function()
+		if booster1 then
+			local weld = booster1:FindFirstChildOfClass("WeldConstraint")
+			if weld then weld:Destroy() end
+		end
+	end)
+	task.delay(25, function()
+		if booster2 then
+			local weld = booster2:FindFirstChildOfClass("WeldConstraint")
+			if weld then weld:Destroy() end
+		end
+	end)
+	task.delay(25, function()
+		if booster3 then
+			local weld = booster3:FindFirstChildOfClass("WeldConstraint")
+			if weld then weld:Destroy() end
+		end
+	end)
+	task.delay(25, function()
+		if booster4 then
+			local weld = booster4:FindFirstChildOfClass("WeldConstraint")
+			if weld then weld:Destroy() end
+		end
+	end)
+
+	if not lv then
+		warn("No hay LinearVelocity")
+		return
+	end
+
+	-- SECUENCIA DE DESPEGUE SUAVE
+	lv.VectorVelocity = Vector3.new(0,0,0)
+	spaceShip:Play()
+	smoke.Enabled = true
+	wait(5)
+
+	lv.VectorVelocity = Vector3.new(0,50,0)
+	spaceShip:Stop()
+	engineSound:Play()
+
+	wait(5)
+	smoke.Enabled = false
+	fire.Enabled = true
+	engineOn = true
+	while fuel > 0 and engineOn do
+		fuelLabel.Text = "Fuel: " .. math.floor(fuel)
+		fuel = fuel - (fuelConsumption * 0.1)
+		lv.VectorVelocity = lv.VectorVelocity + Vector3.new(0, 10, 0)
+		wait(0.1)
+	end
+print("fuel over!")
+engineOn = false
+	
+end)
